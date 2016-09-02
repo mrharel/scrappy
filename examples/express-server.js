@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var scrappy = require('./scrappy/');
+var scrappy = require('scrappy');
 
 
 

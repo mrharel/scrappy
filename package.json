@@ -1,0 +1,14 @@
+{
+  "name": "scrappy",
+  "version": "1.0.0",
+  "description": "Web page scrapping utility",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "q": "^1.4.1",
+    "request": "^2.74.0"
+  },
+  "devDependencies": {},
+  "author": "Amir Harel",
+  "license": "ISC"
+}

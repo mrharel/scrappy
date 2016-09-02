@@ -36,5 +36,9 @@ scrappy.get({
 
 ```
 
-
+So this webpage:
 ![alt tag](https://raw.githubusercontent.com/mrharel/scrappy/master/yahoo.png)
+
+should return something like this:
+![alt tag](https://raw.githubusercontent.com/mrharel/scrappy/master/yahoo-result.png)
+

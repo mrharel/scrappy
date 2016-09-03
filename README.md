@@ -57,7 +57,7 @@ if this is an object here are the options:
 - loader: function which will get the url provided, and a callback method to be invoke when the html was loaded. use this option if you want to load the webpage yourself. 
 - scrappy: (option) this is the scrappy object which define what to scrap from the webpage. see **scrappy object** below from more info.
 - mergeWithDefault: scrappy has some defualts to fetch some standard open graph stuff. if this is true, then the scrappy object you provided will b merged with the default one. 
-- 
+
 
 ## scrappy object
 this object defines scrap parts to be fetched from a webpage. it contains keys, which are the name of the parts, and values which are config options for the scrapping function. 

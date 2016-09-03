@@ -1,4 +1,4 @@
-modeule.exports = {
+module.exports = {
   openGraph: {
     title: [
       {

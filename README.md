@@ -56,7 +56,7 @@ if this is an object here are the options:
 - $: (optional) cheerio context. if this is provided scrappy will not fetch anything and will execute the scrap on the cheerio object. this could actually be any other object which support the jQuery (cheerio) interface. 
 - loader: function which will get the url provided, and a callback method to be invoke when the html was loaded. use this option if you want to load the webpage yourself. 
 - scrappy: (option) this is the scrappy object which define what to scrap from the webpage. see **scrappy object** below from more info.
-- mergeWithDefault: scrappy has some defualts to fetch some standard open graph stuff. if this is true, then the scrappy object you provided will b merged with the default one. 
+- mergeWithDefault: scrappy has some defualts to fetch some standard open graph stuff. if this is true, then the scrappy object you provided will be merged with the default one. 
 
 
 ## scrappy object

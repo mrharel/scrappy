@@ -1,6 +1,6 @@
 {
-  "name": "scrappy",
-  "version": "1.0.0",
+  "name": "@mrharel/scrappy",
+  "version": "1.0.1",
   "description": "Web page scrapping utility",
   "main": "index.js",
   "dependencies": {
@@ -10,5 +10,19 @@
   },
   "devDependencies": {},
   "author": "Amir Harel",
-  "license": "ISC"
+  "license": "ISC",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrharel/scrappy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrharel/scrappy/issues"
+  },
+  "homepage": "https://github.com/mrharel/scrappy#readme"
 }

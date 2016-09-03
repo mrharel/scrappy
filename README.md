@@ -1,5 +1,9 @@
 # scrappy
-Scrappy is a utility module to scrap web page easily in NodeJS
+Scrappy is a utility module that helps you scrap web pages using NodeJS without needing to write any logic code.
+
+Scrappy is using scrappers, which are config objects that tells scrappy what to fetch and how to fetch it. Usually most web page scrapping is based on the same code just setting different configuration.
+
+Scrappy was built with that in mind and allows you just to define scrappers objects and get whatever you want.
 
 ## installation
 `npm install scrappy --save`

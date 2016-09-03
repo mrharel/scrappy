@@ -5,68 +5,12 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var Q = require('q');
+var scrappers = require('./scrappers');
 
 /**
- * default scrappy object fetch most common open graph stuff.
+ * default scrappers object fetch most common open graph stuff.
  */
-const defaultScrappy = {
-  title: [
-    {
-      selector: "meta[property='og:title']",
-      dataType: 'attr',
-      attrName: "content",
-      onlyOne: true
-    },
-    {
-      selector: "title",
-      dataType: "html",
-      onlyOne: true
-    }
-  ],
-
-  type : {
-    selector: "meta[property='og:type']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  },
-
-
-  image: {
-    selector: "meta[property='og:image']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  },
-
-  video: {
-    selector: "meta[property='og:video']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  },
-
-  description: {
-    selector: "meta[property='og:description']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  },
-
-  url: {
-    selector: "meta[property='og:url']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  },
-
-  type: {
-    selector: "meta[property='og:type']",
-    dataType: 'attr',
-    attrName: "content",
-    onlyOne: true
-  }
-};
+const defaultScrappers = scrappers.openGraph;
 
 
 class Scrappy {
@@ -76,11 +20,10 @@ class Scrappy {
    * @param config - if this is a string it will be used as the url, otherwise:
    *  {
    *    url - the web page we want to scrap
+   *    html - html string to scrap
    *    $ - cheerio context or any other object which support the jQuery interface. if this is provided there will be no loading of html from a web page.
    *    loader - if you want to load the web page with external service and just provide the html back.
-   *    scrappy - optional object for setting the scrap function
-   *    mergeWithDefault - if true the scrappy will be merged with the default scrappy settings.
-   *
+   *    scrappers -  scrappers to be fetched. you can use the scrappers built in module or use whatever you want. if this is not peovided the open graph scrappers will be used.
    *  }
    * @param cb - callback that will get the json object object with all the keys as defined in the scrappy object and/or in the default scrappy object.
    */
@@ -92,23 +35,17 @@ class Scrappy {
     this._getContext(config, ($)=>{
       let data = {};
 
-    let scrappy = defaultScrappy;
+    let scrappers = defaultScrappers;
 
-    if( config.scrappy ){
-      if( config.mergeWithDefault ){
-        scrappy = Object.assign(config.scrappy,defaultScrappy );
-      }
-      else{
-        scrappy = config.scrappy;
-      }
+    if( config.scrappers ){
+      scrappers = config.scrappers;
     }
 
     const self = this;
 
     Q.async(function* (){
-
-        for( var part in scrappy ){
-          data[part] = yield self._getData($,scrappy[part]);
+        for( var part in scrappers ){
+          data[part] = yield self._getData($,scrappers[part]);
         }
 
         cb(data);
@@ -136,13 +73,18 @@ class Scrappy {
     if( config.loader ){
       config.loader(config.url, (html)=>{
         if( html && typeof html === 'string' ){
-          let $ = cheerio.load(html);
-          cb($);
-          return;
-        }
-        cb();
+        let $ = cheerio.load(html);
+        cb($);
         return;
-      });
+      }
+      cb();
+      return;
+    });
+    }
+    else if( config.html ){
+      let $ = cheerio.load(config.html);
+      cb($);
+      return;
     }
     else {
       if( !this._validUrl(config.url) ){
@@ -160,9 +102,110 @@ class Scrappy {
         }
 
         let $ = cheerio.load(html);
-        cb($);
-      });
+      cb($);
+    });
     }
+  }
+
+  _extractValue($element,option,cb) {
+    if( typeof option.valueFn === 'function' ) {
+      option.valueFn($element, (value)=>{
+        cb(value);
+    });
+    }
+    else {
+      let value;
+      console.log("option ", option, $element.text());
+      switch( option.dataType ){
+        case 'text':
+          value = $element.text();
+          break;
+
+        case 'attr':
+          value = $element.attr(option.attrName);
+          break;
+
+        default:
+          value = $element.html();
+          break;
+      }
+      cb(value);
+    }
+  }
+
+  _getValuesFromMatch(match, option, cb){
+    console.log("_getValuesFromMatch: ", match.length );
+    if( !match || !match.length ) {
+      cb();
+      return;
+    }
+
+    var value,matchIndex, self = this;
+
+
+    //if we only want one element from the match, we need to know which one.
+    var i = -1;
+    if( option.onlyOne ) {
+      matchIndex = 0;
+      if( option.whichOne === 'first'){
+        matchIndex = 0;
+      }
+      else if( option.whichOne === 'last' ){
+        matchIndex = match.length-1;
+      }
+      else if( typeof option.whichOne === 'number' ){
+        matchIndex = option.whichOne;
+      }
+      i = matchIndex-1;
+    }
+
+
+
+
+
+
+    (function next(){
+      i++;
+
+      //we reached the end and found nothing...
+      if( i === match.length ){
+        cb(value);
+        return;
+      }
+
+      if( option.onlyOne && i !== matchIndex ){
+        cb(value);
+        return;
+      }
+
+      console.log("inside next ", i, value);
+      self._extractValue(match.eq(i), option, (extractedValue)=>{
+        console.log("_extractValue return ",extractedValue );
+      if( typeof extractedValue !== 'string' || !extractedValue.length ){
+        next();
+        return;
+      }
+
+      self._filter(option.filter, extractedValue, match.eq(i),  (pass)=>{
+        console.log("_filterValue return ", pass);
+      if( pass ){
+        if( option.onlyOne ){
+          cb(extractedValue);
+          return;
+        }
+
+        if( !value ){
+          value = [extractedValue];
+        }
+        else{
+          value.push(extractedValue);
+        }
+      }
+      next();
+    });
+    });
+    })();
+
   }
 
 
@@ -191,87 +234,83 @@ class Scrappy {
       options = [options];
     }
 
-    var retVal = [];
-    var matchIndex = -1;
+    var retVal = null;
     var deferred = Q.defer();
     var self = this;
+    var match;
+    //var continueToNext = false;
 
-    //althout everything now is stil sync, i want to support a way which we might fetch stuff async.
-    setTimeout( function(){
 
-      //iterating over all option array, first one which has data is used and the rest is ignored.
-      for( var i=0; i<options.length; i++ ){
-        const selector = options[i].selector;
-
-        if( typeof selector !== 'string' || !selector.length ){
-          continue;
-        }
-
-        let match = $(selector);
-
-        if( match && match.length ){
-          let value;
-          if( options[i].onlyOne ) {
-            matchIndex = 0;
-            if( options[i].whichOne === 'first'){
-              matchIndex = 0;
-            }
-            else if( options[i].whichOne === 'last' ){
-              matchIndex = match.length-1;
-            }
-            else if( typeof options[i].whichOne === 'number' ){
-              matchIndex = options[i].whichOne;
-            }
-          }
-
-          for( var j=0; j<match.length ; j++ ){
-            if( options[i].onlyOne && j != matchIndex ){
-              continue;
-            }
-            switch( options[i].dataType ){
-              case 'text':
-                value = match.eq(j).text();
-                break;
-
-              case 'attr':
-                value = match.eq(j).attr(options[i].attrName);
-                break;
-
-              default:
-                value = match.eq(j).html();
-                break;
-
-            }
-
-            if( value && value.length ){
-
-              if( options[i].filter && !self._passFilter(value,options[i].filter)){
-                console.log("failed ", value);
-                continue;
-              }
-
-              if( options[i].onlyOne ){
-                deferred.resolve(value);
-                return;
-              }
-              retVal.push(value);
-            }
-          }
-          deferred.resolve(retVal);
-          return;
-        }
+    var i = -1;
+    (function next(){
+      i++;
+      if( i === options.length ){
+        // we reached the end
+        deferred.resolve(retVal);
+        return;
       }
-      deferred.resolve(null);
 
-    }, 0);
+      const option = options[i];
+      if( typeof option.selector !== 'string' || !option.selector.length ){
+        next();
+        return;
+      }
 
+      match = $(option.selector);
 
+      self._getValuesFromMatch(match, option, (res)=>{
+        if( res ){
+          if( option.next ){
+            if( !retVal ){
+              retVal = res;
+            }
+            else{
+              if( !(retVal instanceof Array) ){
+                retVal = [retVal];
+              }
+              retVal = retVal.concat(res);
+            }
+            next();
+          }
+          else{
+            if( retVal ){
+              if( !(retVal instanceof Array) ){
+                retVal = [retVal];
+              }
+              retVal = retVal.concat(res);
+            }
+            else{
+              retVal = res;
+            }
+            deferred.resolve(retVal);
+          }
+        }
+        else{
+          next();
+    }
+    });
+
+    })();
 
     return deferred.promise;
   }
 
-  _passFilter(value,filter){
-    if( !filter ) return true;
+  _filter(filter, value,$element,  cb){
+    if( !filter ){
+      cb(true);
+      return;
+    }
+
+    if( typeof filter.filterValue === 'function' ){
+      filter.filterFn(value, cb);
+      return;
+    }
+
+    if( typeof filter.filterElement === 'function' ){
+      filter.filterElement($element, cb);
+      return;
+    }
+
     if( filter.regex ){
       for( var i=0; i<filter.regex.length; i++ ){
         try{
@@ -279,7 +318,8 @@ class Scrappy {
           if( !regex.test(value) ){
             //console.log("failed ", value);
 
-            return false;
+            cb(false);
+            return;
           }
         }
         catch(err){
@@ -287,7 +327,7 @@ class Scrappy {
         }
       }
     }
-    return true;
+    cb(true);
   }
 
   _getOptions(url){

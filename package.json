@@ -1,6 +1,6 @@
 {
   "name": "@mrharel/scrappy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Web page scrapping utility",
   "main": "index.js",
   "dependencies": {

@@ -15,6 +15,10 @@ const defaultScrappers = scrappers.openGraph;
 
 class Scrappy {
 
+  get scrappers(){
+    return scrappers;
+  }
+
   /**
    *
    * @param config - if this is a string it will be used as the url, otherwise:
@@ -358,3 +362,4 @@ class Scrappy {
 
 
 module.exports = new Scrappy();
+

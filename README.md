@@ -6,12 +6,12 @@ Scrappy is using scrappers, which are config objects that tells scrappy what to 
 Scrappy was built with that in mind and allows you just to define scrappers objects and get whatever you want.
 
 ## installation
-`npm install scrappy --save`
+`npm install @mrharel/scrappy --save`
 
 ## usage
 
 ```
-var scrappy = require('scrappy');
+var scrappy = require('@mrharel/scrappy');
 
 scrappy.get({
     url:"http://finance.yahoo.com/news/facebooks-mark-zuckerberg-says-most-130903427.html",

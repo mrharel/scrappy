@@ -219,7 +219,7 @@ class Scrappy {
             else if( options[i].whichOne === 'last' ){
               matchIndex = match.length-1;
             }
-            else if( options[i].whichOne ){
+            else if( typeof options[i].whichOne === 'number' ){
               matchIndex = options[i].whichOne;
             }
           }

@@ -2,12 +2,12 @@
 Scrappy is a utility module to scrap web page easily in NodeJS
 
 ## installation
-`npm install scrappy --save`
+`npm install @mrharel/scrappy --save`
 
 ## usage
 
 ```
-var scrappy = require('scrappy');
+var scrappy = require('@mrharel/scrappy');
 
 scrappy.get({
     url:"http://finance.yahoo.com/news/facebooks-mark-zuckerberg-says-most-130903427.html",

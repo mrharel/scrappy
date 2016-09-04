@@ -56,5 +56,23 @@ module.exports = {
       attrName: "content",
       onlyOne: true
     }
+  },
+  images: {
+    relative: {
+      selector: 'img',
+      dataType: "attr",
+      attrName: "src",
+      filter: {
+        regex: ["^\/[^\/]"]
+      }
+    },
+    base64: {
+      selector: 'img',
+      dataType: "attr",
+      attrName: "src",
+      filter: {
+        regex: ["^data\:image"]
+      }
+    }
   }
 }

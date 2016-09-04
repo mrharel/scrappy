@@ -37,17 +37,22 @@ class Scrappy {
     }
 
     this._getContext(config, ($)=>{
+      if( !$ ){
+        console.error("context is null. ");
+        cb(null);
+        return;
+      }
       let data = {};
 
-    let scrappers = defaultScrappers;
+      let scrappers = defaultScrappers;
 
-    if( config.scrappers ){
-      scrappers = config.scrappers;
-    }
+      if( config.scrappers ){
+        scrappers = config.scrappers;
+      }
 
-    const self = this;
+      const self = this;
 
-    Q.async(function* (){
+      Q.async(function* (){
         for( var part in scrappers ){
           data[part] = yield self._getData($,scrappers[part]);
         }
@@ -77,13 +82,13 @@ class Scrappy {
     if( config.loader ){
       config.loader(config.url, (html)=>{
         if( html && typeof html === 'string' ){
-        let $ = cheerio.load(html);
-        cb($);
+          let $ = cheerio.load(html);
+          cb($);
+          return;
+        }
+        cb();
         return;
-      }
-      cb();
-      return;
-    });
+      });
     }
     else if( config.html ){
       let $ = cheerio.load(config.html);
@@ -119,7 +124,6 @@ class Scrappy {
     }
     else {
       let value;
-      console.log("option ", option, $element.text());
       switch( option.dataType ){
         case 'text':
           value = $element.text();
@@ -138,7 +142,7 @@ class Scrappy {
   }
 
   _getValuesFromMatch(match, option, cb){
-    console.log("_getValuesFromMatch: ", match.length );
+    //console.log("_getValuesFromMatch: ", match.length );
     if( !match || !match.length ) {
       cb();
       return;
@@ -163,11 +167,7 @@ class Scrappy {
       i = matchIndex-1;
     }
 
-
-
-
-
-
+    //todo: replace with generators
     (function next(){
       i++;
 
@@ -182,34 +182,32 @@ class Scrappy {
         return;
       }
 
-      console.log("inside next ", i, value);
       self._extractValue(match.eq(i), option, (extractedValue)=>{
-        console.log("_extractValue return ",extractedValue );
-      if( typeof extractedValue !== 'string' || !extractedValue.length ){
-        next();
-        return;
-      }
-
-      self._filter(option.filter, extractedValue, match.eq(i),  (pass)=>{
-        console.log("_filterValue return ", pass);
-      if( pass ){
-        if( option.onlyOne ){
-          cb(extractedValue);
+        //console.log("_extractValue return ",extractedValue );
+        if( extractedValue === null || extractedValue === undefined ){
+          next();
           return;
         }
 
-        if( !value ){
-          value = [extractedValue];
-        }
-        else{
-          value.push(extractedValue);
-        }
-      }
-      next();
-    });
-    });
-    })();
+        self._filter(option.filter, extractedValue, match.eq(i),  (pass)=>{
 
+          if( pass ){
+            if( option.onlyOne ){
+              cb(extractedValue);
+              return;
+            }
+
+            if( !value ){
+              value = [extractedValue];
+            }
+            else{
+              value.push(extractedValue);
+            }
+          }
+          next();
+        });
+      });
+    })();
   }
 
 
@@ -246,6 +244,7 @@ class Scrappy {
 
 
     var i = -1;
+    //todo: replace with generators
     (function next(){
       i++;
       if( i === options.length ){

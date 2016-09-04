@@ -89,7 +89,7 @@ You can provide an array of scrappers if you want to crete some fallbacks, or if
 - valueFn: `function($element, cb)` provide a function in case you want to extract the value from the element yourself. the function gets in the first parameter the `$element` which is the cheerio representation of the element. the second parameter is a callback function which you need to provide the value, or null to ignore this element.
 - onlyOne: if this is true, only one element will be used for getting it's data value. since the css selector can find more than one element, you can tell scrappy to work only on one element.
 - whichOne: "first","last", or any index number. use this to control which element you want in case you specified `onlyOne=true`.
-- next: if this is true and you have an array of scrappers, this will tell scrappy to continue to the next one. if this is not provided ot this is false, scrappy will only find the first scrappers which was match and will not continue to the next one.
+- next: if this is true and you have an array of scrappers, this will tell scrappy to continue to the next one. if this is not provided or this is false, scrappy will only find the first scrappers which was match and will not continue to the next one.
 - filter: this is a way to filter out values from the result.
     - regex: provide an array of string regular expressions. the values will be matched to these regular expressions and only the ones which will not pass will be filtered out.
     - filterValue: `function(value,cb)` provide a function to filter a value. the function gets a value and a callback function. call the callback if true or false to tell scrappy if this value is valid. true=valid.
@@ -103,13 +103,14 @@ Lets see some examples:
 scrappy.get({
     url: "http:.....",
     scrappy: {
-        links: {
+        links: [{
           selector: "a",
           dataType: "attr",
           attrName: "href",
           filter:{
               regex: ["^\/"]
-          }
+          },
+          next: true
         },
         {
             selector: "a,
@@ -119,7 +120,7 @@ scrappy.get({
               regex: ["^https"]
             }
         }
-      }
+      }]
     }
 },function(res,err){};
 ```
@@ -129,13 +130,19 @@ scrappy.get({
 scrappy.get({
     url: "http:.....",
     scrappy: {
-        text: {
+        text: [{
             selector: "article p",
             dataType: "text"
-      }
+      },
+      {
+          selector: "p",
+          dataType: "text
+      }]
     }
 },function(res,err){};
 ```
+
+in this example we first try to finr `p` which are inside of an `article` tag. if scrappy doesn't have any match for this it ill go to the next option with the simpler selector of just any `p` in the page.
 
 ### fetching images that only have width greater thn 100px
 ```

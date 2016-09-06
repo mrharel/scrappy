@@ -40,6 +40,9 @@ should return something like this:
 
 ![alt tag](https://raw.githubusercontent.com/mrharel/scrappy/master/yahoo-result.png)
 
+## video exmaple
+![IMAGE](https://img.youtube.com/vi/4TuH3xbXFbI/0.jpg)](https://www.youtube.com/watch?v=4TuH3xbXFbI)
+
 ## api
 ### get
 `scrappy.get(config,callback)`

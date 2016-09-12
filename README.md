@@ -83,6 +83,12 @@ var relative = scrappy.scrappers.images.relative; //find images which has relati
 var base64 = scrappy.scrappers.images.base64; //find images which has base64 images
 ```
 
+**Video**
+
+`scrappy.scrappers.video.youtube` - scrap youtube videos in the page.
+
+`scrappy.scrappers.video.vimeo` - scrap vimeo videos in the page.
+
 ## scrappers
 This is where scrappy shines. All you have to understand is how to define scrappers and that is it. If my grandma understand it, so can you.
 

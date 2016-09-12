@@ -74,5 +74,61 @@ module.exports = {
         regex: ["^data\:image"]
       }
     }
+  },
+
+  video: {
+    youtube: [{
+      selector: "iframe",
+      valueFn: function($element, cb){
+        var src = $element.attr("src") || "";
+        var youtubeId = src.match(/youtube\.com\/(embed|v)\/([a-zA-Z0-9-_]+)/);
+        if( youtubeId && youtubeId[2] ){
+          cb( {
+            id: youtubeId[2],
+            type: "youtube"
+
+          } );
+        }
+        else{
+          cb( null );
+        }
+      },
+      next: true
+    },
+      {
+        selector: "object",
+        valueFn: function( $element, cb ){
+          var html = $element.html() || "";
+          var youtubeId = html.match(/youtube\.com\/(embed|v)\/([a-zA-Z0-9-_]+)/);
+          if( youtubeId && youtubeId[2] ){
+            cb( {
+              id: youtubeId[2],
+              type: "youtube"
+
+            } );
+          }
+          else{
+            cb( null );
+          }
+        }
+      }],
+    vimeo: {
+      selector: "iframe",
+      valueFn: function( $element, cb ){
+        var src = $element.attr("src") || "";
+        var vimeoId = src.match(/player\.vimeo\.com\/video\/([^\/?#"' ]+)/);
+        if( vimeoId && vimeoId[1] ){
+          cb( {
+            id: vimeoId[1],
+            type: "vimeo"
+
+          } );
+        }
+        else{
+          cb( null );
+        }
+
+      }
+    }
   }
 }

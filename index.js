@@ -2,6 +2,8 @@
  * Created by Amir on 02/09/16.
  */
 
+"use strict";
+
 var request = require('request');
 var cheerio = require('cheerio');
 var Q = require('q');
